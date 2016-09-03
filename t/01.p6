@@ -3,7 +3,7 @@ use Test;
 use lib 'lib';
 use Work-time;
 
-plan 4;
+plan 5;
 
 my $dt = DateTime.now.truncated-to('day').later(hours => 8);
 my $login = Work-time.new(start => $dt, end => $dt.later(hours => 8));
