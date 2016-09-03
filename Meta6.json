@@ -1,0 +1,14 @@
+{
+    "perl"         : "6.c",
+    "name"         : "Work-time",
+    "version"      : "1.00",
+    "description"
+        : "Try to track working time"
+    "depends"      : [ ],
+    "test-depends" : [ "Test" ],
+    "provides"     : {
+        "Color" : "lib/Work-time.pm6",
+    },
+    "authors"      : ["Martin Frausing"],
+    "support"      : { "source" : "git://github.com/baest/Work-time.git" }
+}
