@@ -1,3 +1,3 @@
 
 test:
-	prove --exec perl6 -r t/01.p6
+	prove --exec perl6 -v -r t/*.p6

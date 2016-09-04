@@ -3,7 +3,7 @@ use Test;
 use lib 'lib';
 use Work-time;
 
-plan 5;
+plan 6;
 
 my $dt = DateTime.now.truncated-to('day').later(hours => 8);
 my $login = Work-time.new(start => $dt, end => $dt.later(hours => 8));
@@ -24,3 +24,9 @@ $login.set($dt.later(day => 1));
 $login.set($dt.later(day => 1).later(hours => 8));
 
 is $login.get-time(), 3600*8, 'New day is 8 hours';
+
+$login = Work-time.new(start => $dt, end => $dt.later(hours => 8).later(minutes => 5).later(seconds => 5));
+
+is $login.get-time-pretty, '08:05', 'Get time in pretty format';
+
+$login = Work-time.new(start => $dt, end => $dt.later(hours => 8));

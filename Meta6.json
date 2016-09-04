@@ -4,10 +4,10 @@
     "version"      : "1.00",
     "description"
         : "Try to track working time"
-    "depends"      : [ ],
+    "depends"      : [ "DBIish", "DateTime::Parse" ],
     "test-depends" : [ "Test" ],
     "provides"     : {
-        "Color" : "lib/Work-time.pm6",
+        "Work-time" : "lib/Work-time.pm6",
     },
     "authors"      : ["Martin Frausing"],
     "support"      : { "source" : "git://github.com/baest/Work-time.git" }

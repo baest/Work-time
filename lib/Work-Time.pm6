@@ -45,9 +45,12 @@ class Work-time {
 		return $!end.Instant - $!start.Instant;
 	}
 
+	method get-time-pretty (){
+		my $diff = self.get-time;
+		return sprintf '%02d:%02d', $diff / 3600, ($diff % 3600) / 60;
+	}
+
 	multi method Str {
-		my $diff = $!end.Instant - $!start.Instant;
-		return join("\n", (start => $!start.Str, end => $!end.Str), (diff => $diff));
+		return join("\n", (start => $!start.Str, end => $!end.Str), (diff => self.get-time-pretty));
 	}
 }
-
