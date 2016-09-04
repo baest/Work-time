@@ -29,7 +29,7 @@ is $persist.account-week, '2:40', 'Get overtime hours per week';
 
 $persist.clear-data;
 
-$persist.load-data("Arbejdstimer - Sheet1.csv");
+$persist.load-data("data/timer.csv");
 
 is $persist.sum-week(:week-num(34), :2016year), '39:20', 'Get numbers of hours worked per week for week 34 2016';
 is $persist.account-week(:week-num(34), :2016year), '1:50', 'Get overtime hours for week 34';
