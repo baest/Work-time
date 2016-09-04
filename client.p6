@@ -1,14 +1,36 @@
 use v6;
+#= Client
 
-sub MAIN(Str :$start, Str :$end) {
-	for $start, $end {
-		if $_ && /\d**4/ {
-			connect-send(($start ?? 'start' !! 'end') ~ ' ' ~ $_);
-			exit 0;
-		}
-	}
+#| Do a checkin on MAIN
+multi sub MAIN() {
 	connect-send;
+}
 
+#| Call on login
+multi sub MAIN(Bool :$login) {
+	connect-send('login');
+}
+
+#| Call on logout
+multi sub MAIN(Bool :$logout) {
+	connect-send('logout');
+}
+
+#| Set the start time of today
+multi sub MAIN(Str :$start) {
+	put-time($start, 'start');
+}
+
+#| Set the end time of today
+multi sub MAIN(Str :$end) {
+	put-time($end, 'end');
+}
+
+sub put-time (Str $time, Str $what) {
+	if $time && /\d**4/ {
+		connect-send("$what $time");
+		exit 0;
+	}
 	exit 1;
 }
 
