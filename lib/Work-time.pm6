@@ -13,8 +13,11 @@ class Work-time {
 	}
 
 	multi method set (Str $what, DateTime $dt) {
+        my Work-time $ret;
 		given $what {
 			when /:i start/ {
+                $ret = ~self.clone if self.is-next-day($dt);
+
 				$!start = $dt;
 			}
 			when /:i end/ {
@@ -26,11 +29,14 @@ class Work-time {
 			}
 		}
 
-		return self;
+		return $ret // self;
 	}
 
 	multi method set(DateTime $dt = DateTime.now()) {
+        my $ret; 
+
 		if self.is-next-day($dt) {
+            $ret = ~self.clone;
 			$!start = $dt;
 			$!end = $dt;
 		}
@@ -38,7 +44,7 @@ class Work-time {
 			$!end = $dt;
 		}
 
-		return self;
+		return $ret // self;
 	}
 
 	method get-time (){
