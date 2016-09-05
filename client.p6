@@ -27,7 +27,7 @@ multi sub MAIN(Str :$end) {
 }
 
 sub put-time (Str $time, Str $what) {
-	if $time && /\d**4/ {
+	if $time && $time ~~ /\d**4/ {
 		connect-send("$what $time");
 		exit 0;
 	}
