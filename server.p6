@@ -2,8 +2,11 @@ use v6;
 
 use lib 'lib';
 use Work-time;
+use Persist;
 
 my $login = Work-time.new;
+my $persist = Persist.new();
+$persist.setup;
 
 react {
 	whenever IO::Socket::Async.listen('localhost', 3333) -> $conn {
@@ -20,6 +23,9 @@ react {
 						minute => $2,
 						timezone => $*TZ,
 					));
+                    if $l !== $login {
+                        $persist.save($l);
+                    }
 				}
 			}
 
