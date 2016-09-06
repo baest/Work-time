@@ -27,10 +27,14 @@ multi sub MAIN(Str :$end) {
 }
 
 sub put-time (Str $time, Str $what) {
-	if $time && $time ~~ /\d**4/ {
+	if $time && $time ~~ /(\d\d?) ':'? (\d**2)/ {
+        my $time = "$0:$1";
 		connect-send("$what $time");
 		exit 0;
 	}
+    else {
+        say qq!Don't recognize time: '$time'!;
+    }
 	exit 1;
 }
 

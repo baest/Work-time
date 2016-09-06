@@ -6,10 +6,10 @@ use DateTime::Parse;
 
 class Persist {
 	#has $.file where { .IO.w // die "file not found in $*CWD" } = 'worktime.db';
-	has $.file = 'worktime.db';
+	has $.file;# = 'worktime.db';
 	has $.dbh;
 
-	submethod BUILD (:file($!file)) {
+	submethod BUILD (:file($!file) = 'worktime.db') {
 		$!dbh = DBIish.connect("SQLite", :database($!file));
 		$!dbh.do(q:to/STATEMENT/);
 			CREATE TABLE IF NOT EXISTS working_day (
