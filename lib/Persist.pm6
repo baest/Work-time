@@ -7,11 +7,11 @@ use DateTime::Parse;
 class Persist {
 	#has $.file where { .IO.w // die "file not found in $*CWD" } = 'worktime.db';
 	has $.file = 'worktime.db';
-	has $dbh;
+	has $.dbh;
 
-	method setup {
+	submethod BUILD (:file($!file)) {
 		$!dbh = DBIish.connect("SQLite", :database($!file));
-		my $sth = $dbh.do(q:to/STATEMENT/);
+		$!dbh.do(q:to/STATEMENT/);
 			CREATE TABLE IF NOT EXISTS working_day (
 				started int NOT NULL,
 				ended int NOT NULL
@@ -20,7 +20,7 @@ class Persist {
 	}
 
 	method save (Work-time $login) {
-		state $sth = $dbh.prepare(q:to/STATEMENT/);
+		state $sth = $!dbh.prepare(q:to/STATEMENT/);
         INSERT INTO working_day (started, ended)
         VALUES (?, ?)
         STATEMENT
@@ -42,7 +42,7 @@ class Persist {
 			timezone => $*TZ,
 		).truncated-to('week').later(:weeks($week-num));
 
-		state $sth = $dbh.prepare(q:to/STATEMENT/);
+		state $sth = $!dbh.prepare(q:to/STATEMENT/);
         SELECT SUM(ended-started) FROM working_day WHERE started >= ? AND ended <= ?
         STATEMENT
 
@@ -78,7 +78,7 @@ class Persist {
 	method account-week-rows () {
 		my $dt = DateTime.now.truncated-to('week');
 
-		state $sth = $dbh.prepare(q:to/STATEMENT/);
+		state $sth = $!dbh.prepare(q:to/STATEMENT/);
         SELECT * FROM working_day
 				WHERE started >= ? AND ended <= ?
         STATEMENT
@@ -96,7 +96,7 @@ class Persist {
 	}
 
 	method clear-data {
-		$dbh.do('DELETE FROM working_day');
+		$!dbh.do('DELETE FROM working_day');
 	}
 
 	method load-data (Str $filename where { .IO.r || die "Couldn't load file $filename" }) {

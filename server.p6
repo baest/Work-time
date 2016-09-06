@@ -6,7 +6,6 @@ use Persist;
 
 my $login = Work-time.new;
 my $persist = Persist.new();
-$persist.setup;
 
 react {
 	whenever IO::Socket::Async.listen('localhost', 3333) -> $conn {

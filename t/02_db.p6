@@ -12,7 +12,6 @@ my $db = 'test.db';
 $db.IO.unlink;
 
 isa-ok(my $persist = Persist.new(:file($db)), 'Persist','Grab file');
-$persist.setup;
 
 ok $db.IO ~~ :e, 'DB file exists';
 
