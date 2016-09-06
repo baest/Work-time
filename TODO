@@ -1,0 +1,8 @@
+
+- support lunch
+
+- test that client work with mock server
+
+- test that server works with mock client
+
+- provide stat automatically. Like current status every week/month
