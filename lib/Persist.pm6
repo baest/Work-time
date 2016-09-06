@@ -43,14 +43,13 @@ class Persist {
 		).truncated-to('week').later(:weeks($week-num));
 
 		state $sth = $dbh.prepare(q:to/STATEMENT/);
-        SELECT SUM(ended-started) FROM working_day
-				WHERE started >= ? AND ended <= ?
+        SELECT SUM(ended-started) FROM working_day WHERE started >= ? AND ended <= ?
         STATEMENT
 
-		$sth.execute($dt.Instant, $dt.later(:1week).earlier(:1minute).Instant);
-
-		my @rows = $sth.allrows;
-		return @rows[0][0];
+        given $sth {
+            .execute($dt.Instant, $dt.later(:1week).earlier(:1minute).Instant);
+            return .allrows[0][0];
+        }
 	}
 
 	method sum-week (:$week-num = Date.today.week-number, :$year = Date.today.year) {
@@ -97,9 +96,7 @@ class Persist {
 	}
 
 	method clear-data {
-		state $sth = $dbh.do(q:to/STATEMENT/);
-        DELETE FROM working_day
-        STATEMENT
+		$dbh.do('DELETE FROM working_day');
 	}
 
 	method load-data (Str $filename where { .IO.r || die "Couldn't load file $filename" }) {
