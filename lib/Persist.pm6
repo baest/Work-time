@@ -21,11 +21,11 @@ class Persist {
 
 	method save (Work-time $login) {
 		state $sth = $!dbh.prepare(q:to/STATEMENT/);
-        INSERT INTO working_day (started, ended)
-        VALUES (?, ?)
-        STATEMENT
+			INSERT INTO working_day (started, ended)
+			VALUES (?, ?)
+		STATEMENT
 
-    $sth.execute($login.start.Instant, $login.end.Instant); 
+		$sth.execute($login.start.Instant, $login.end.Instant); 
 
 		return 1;
 	}
@@ -95,6 +95,16 @@ class Persist {
 		return sprintf '%02d:%02d', $hours, $min;
 	}
 
+	method get-current-account {
+		state $sth = $dbh.prepare(q:to/STATEMENT/);
+			SELECT SUM(ended-started) - COUNT(*) * 7.5 * 3600 FROM working_day
+		STATEMENT
+
+		$sth.execute();
+		my @rows = $sth.allrows;
+		self.get-time(@rows[0][0]);
+	}
+
 	method clear-data {
 		$!dbh.do('DELETE FROM working_day');
 	}
@@ -118,8 +128,6 @@ class Persist {
 						:$year,
 						:$month
 						:day(~$/<day>),
-						#:hour(~$/<hour>),
-						#:minute(~$/<min>),
 						:8hour,
 						:0minute,
 						timezone => $*TZ,

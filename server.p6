@@ -16,6 +16,10 @@ react {
 				when /checkin|login|logout/ { 
 					$login.set();
 				}
+				when m!'load-file:' \s+ (<[\w/\.]>.+)! {
+					$persist.clear-data;
+					$persist.load-data(~$0);
+				}
 				when /(\w+) \s+ (\d**1..2) ':'? (\d**2)/ {
 					my $l = $login.set(~$0, DateTime.new(
 						date => Date.today,
@@ -23,9 +27,9 @@ react {
 						minute => $2,
 						timezone => $*TZ,
 					));
-                    unless $l === $login {
-                        $persist.save($l);
-                    }
+					unless $l === $login {
+						$persist.save($l);
+					}
 				}
 			}
 

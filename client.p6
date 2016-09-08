@@ -26,6 +26,11 @@ multi sub MAIN(Str :$end) {
 	put-time($end, 'end');
 }
 
+#| Load data from file
+multi sub MAIN(Str :$load-file) {
+	connect-send("load-file: $load-file");
+}
+
 sub put-time (Str $time, Str $what) {
 	if $time && $time ~~ /(\d\d?) ':'? (\d**2)/ {
         my $time = "$0:$1";

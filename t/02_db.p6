@@ -5,7 +5,7 @@ use Work-time;
 
 use Persist;
 
-plan 47;
+plan 48;
 
 my $db = 'test.db';
 
@@ -43,6 +43,8 @@ for 1..33 {
 
 	is $total, @week_totalts[$_], "The total is correct for week $_";
 }
+
+is $persist.get-current-account, '15:00', 'Current flex is correct';
 
 if %*ENV<NO_UNLINK> {
 	skip "Not removing file since NO_UNLINK", 1;
