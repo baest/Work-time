@@ -37,9 +37,9 @@ sub put-time (Str $time, Str $what) {
 		connect-send("$what $time");
 		exit 0;
 	}
-    else {
-        say qq!Don't recognize time: '$time'!;
-    }
+	else {
+		say qq!Don't recognize time: '$time'!;
+	}
 	exit 1;
 }
 

@@ -8,7 +8,7 @@ my $login = Work-time.new;
 my $persist = Persist.new();
 
 react {
-    say 'Ready';
+	say 'Ready';
 	whenever IO::Socket::Async.listen('localhost', 3333) -> $conn {
 		whenever $conn.Supply(:bin) -> $buf {
 			my $str = $buf.decode('UTF-8');
