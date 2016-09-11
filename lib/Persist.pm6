@@ -43,13 +43,13 @@ class Persist {
 		).truncated-to('week').later(:weeks($week-num));
 
 		state $sth = $!dbh.prepare(q:to/STATEMENT/);
-        SELECT SUM(ended-started) FROM working_day WHERE started >= ? AND ended <= ?
-        STATEMENT
+		SELECT SUM(ended-started) FROM working_day WHERE started >= ? AND ended <= ?
+		STATEMENT
 
-        given $sth {
-            .execute($dt.Instant, $dt.later(:1week).earlier(:1minute).Instant);
-            return .allrows[0][0];
-        }
+		given $sth {
+			.execute($dt.Instant, $dt.later(:1week).earlier(:1minute).Instant);
+			return .allrows[0][0];
+		}
 	}
 
 	method sum-week (:$week-num = Date.today.week-number, :$year = Date.today.year) {
@@ -79,9 +79,9 @@ class Persist {
 		my $dt = DateTime.now.truncated-to('week');
 
 		state $sth = $!dbh.prepare(q:to/STATEMENT/);
-        SELECT * FROM working_day
-				WHERE started >= ? AND ended <= ?
-        STATEMENT
+			SELECT * FROM working_day
+			WHERE started >= ? AND ended <= ?
+		STATEMENT
 
 		$sth.execute($dt.Instant, $dt.later(:1week).earlier(:1minute).Instant);
 

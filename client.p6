@@ -33,7 +33,7 @@ multi sub MAIN(Str :$load-file) {
 
 sub put-time (Str $time, Str $what) {
 	if $time && $time ~~ /(\d\d?) ':'? (\d**2)/ {
-        my $time = "$0:$1";
+		my $time = "$0:$1";
 		connect-send("$what $time");
 		exit 0;
 	}
