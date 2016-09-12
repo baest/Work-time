@@ -96,7 +96,7 @@ class Persist {
 	}
 
 	method get-current-account {
-		state $sth = $dbh.prepare(q:to/STATEMENT/);
+		state $sth = $!dbh.prepare(q:to/STATEMENT/);
 			SELECT SUM(ended-started) - COUNT(*) * 7.5 * 3600 FROM working_day
 		STATEMENT
 
