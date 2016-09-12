@@ -13,8 +13,9 @@ react {
 		whenever $conn.Supply(:bin) -> $buf {
 			my $str = $buf.decode('UTF-8');
 			given $str {
-				when /checkin|login|logout/ { 
-					$login.set();
+				when /[checkin|login|logout] \s+ (\d+)/ {
+					my $time = DateTime.new(+$0, :timezone($*TZ));
+					$login.set($time);
 				}
 				when m!'load-file:' \s+ (<[\w/\.]>.+)! {
 					$persist.clear-data;

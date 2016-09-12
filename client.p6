@@ -8,22 +8,22 @@ multi sub MAIN() {
 
 #| Call on login
 multi sub MAIN(Bool :$login) {
-	connect-send('login');
+	put-time(:what('login'));
 }
 
 #| Call on logout
 multi sub MAIN(Bool :$logout) {
-	connect-send('logout');
+	connect-send(:what('logout'));
 }
 
 #| Set the start time of today
 multi sub MAIN(Str :$start) {
-	put-time($start, 'start');
+	put-time(:what('start'), :time($start));
 }
 
 #| Set the end time of today
 multi sub MAIN(Str :$end) {
-	put-time($end, 'end');
+	put-time(:what('end'), :time($end));
 }
 
 #| Load data from file
@@ -31,11 +31,15 @@ multi sub MAIN(Str :$load-file) {
 	connect-send("load-file: $load-file");
 }
 
-sub put-time (Str $time, Str $what) {
+sub put-time (Str :$time, Str :$what) {
 	if $time && $time ~~ /(\d\d?) ':'? (\d**2)/ {
 		my $time = "$0:$1";
 		connect-send("$what $time");
 		exit 0;
+	}
+	elsif !$time {
+		my $time = DateTime.now.truncated-to('minute');
+		connect-send("$what {Int($time.Instant)}");
 	}
 	else {
 		say qq!Don't recognize time: '$time'!;
