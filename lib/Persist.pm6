@@ -25,7 +25,7 @@ class Persist {
 			VALUES (?, ?)
 		STATEMENT
 
-		$sth.execute($login.start.Instant, $login.end.Instant); 
+		$sth.execute(Int($login.start.Instant), Int($login.end.Instant)); 
 
 		return 1;
 	}
