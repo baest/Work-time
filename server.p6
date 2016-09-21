@@ -41,7 +41,7 @@ react {
 				say ~$ret-login;
 			}
 
-			await $conn.print($login.Str.encode('UTF-8'));
+			await $conn.print(($login ~ "\n").encode('UTF-8'));
 		}
 	}
 }

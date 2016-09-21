@@ -13,7 +13,7 @@ multi sub MAIN(Bool :$login) {
 
 #| Call on logout
 multi sub MAIN(Bool :$logout) {
-	connect-send(:what('logout'));
+	put-time(:what('logout'));
 }
 
 #| Set the start time of today
@@ -54,7 +54,7 @@ sub connect-send (Str $data = 'checkin') {
 				.print($data);
 				react {
 					whenever .Supply() -> $v {
-						say $v;
+						print $v;
 						done;
 					}
 				}
