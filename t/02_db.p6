@@ -44,7 +44,7 @@ for 1..33 {
 	is $total, @week_totalts[$_], "The total is correct for week $_";
 }
 
-is $persist.get-current-account, '15:00', 'Current flex is correct';
+is $persist.get-current-account, '22:15', 'Current flex is correct';
 
 if %*ENV<NO_UNLINK> {
 	skip "Not removing file since NO_UNLINK", 1;
