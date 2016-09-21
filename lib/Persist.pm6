@@ -112,6 +112,7 @@ class Persist {
 	method load-data (Str $filename where { .IO.r || die "Couldn't load file $filename" }) {
 		my $year = 2014;
 		my $last_month = 5;
+		my $inserted = 0;
 
 		for $filename.IO.lines -> $line {
 			given $line { 
@@ -136,8 +137,10 @@ class Persist {
 					my $end = $start.later(:hour($/<hour>)).later(:minute($/<min>));
 
 					self.save(Work-time.new(:$start, :$end));
+					$inserted++;
 				}
 			}
 		}
+		return $inserted;
 	}
 }
