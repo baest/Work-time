@@ -21,6 +21,11 @@ multi sub MAIN(Str :$start) {
 	put-time(:what('start'), :time($start));
 }
 
+#| Sets no lunch for today
+multi sub MAIN(Bool :$no-lunch) {
+	connect-send('no-lunch');
+}
+
 #| Set the end time of today
 multi sub MAIN(Str :$end) {
 	put-time(:what('end'), :time($end));

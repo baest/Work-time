@@ -26,6 +26,9 @@ sub run-server (Bool :$verbose = False) {
 						my $time = DateTime.new(+$0, :timezone($*TZ));
 						$ret-login = $login.set($time);
 					}
+					when /"no-lunch"/ {
+						$login.had-lunch = False;
+					}
 					when m!'load-file:' \s+ (<[\w/\.]>.+)! {
 						$persist.clear-data;
 						my $inserted = $persist.load-data(~$0);
@@ -42,7 +45,7 @@ sub run-server (Bool :$verbose = False) {
 						));
 					}
 				}
-				if $ret-login === $login {
+				if !$ret-login || $ret-login === $login {
 					say "Not saving: ";
 					say ~$login;
 				}

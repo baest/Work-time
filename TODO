@@ -1,7 +1,5 @@
 - auto find last entry and reuse if same day on start
 
-- support lunch
-
 - test that client work with mock server
 
 - test that server works with mock client
