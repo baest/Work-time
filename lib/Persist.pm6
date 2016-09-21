@@ -14,18 +14,41 @@ class Persist {
 		$!dbh.do(q:to/STATEMENT/);
 			CREATE TABLE IF NOT EXISTS working_day (
 				started int NOT NULL,
-				ended int NOT NULL
+				ended int NOT NULL,
+				had_lunch int NOT NULL DEFAULT 1
 			)
+		STATEMENT
+		$!dbh.do(q:to/STATEMENT/);
+			CREATE VIEW IF NOT EXISTS v_working_day AS 
+				SELECT
+					started
+				,	ended
+				, datetime(started, 'unixepoch') as started_date
+				, datetime(ended, 'unixepoch') as ended_date
+				, (ended-started-1800*had_lunch) as total
+				FROM working_day;
+			;
+		STATEMENT
+
+		$!dbh.do(q:to/STATEMENT/);
+			CREATE VIEW IF NOT EXISTS v_working_day_pretty AS 
+				SELECT
+					*
+				, datetime(started, 'unixepoch') as started_date
+				, datetime(ended, 'unixepoch') as ended_date
+				, (total/3600) || ':' || ((total%3600)/60)
+				FROM v_working_day;
+			;
 		STATEMENT
 	}
 
 	method save (Work-time $login) {
 		state $sth = $!dbh.prepare(q:to/STATEMENT/);
-			INSERT INTO working_day (started, ended)
-			VALUES (?, ?)
+			INSERT INTO working_day (started, ended, had_lunch)
+			VALUES (?, ?, ?)
 		STATEMENT
 
-		$sth.execute(Int($login.start.Instant), Int($login.end.Instant)); 
+		$sth.execute(Int($login.start.Instant), Int($login.end.Instant), $login.had-lunch.Numeric); 
 
 		return 1;
 	}
@@ -43,7 +66,7 @@ class Persist {
 		).truncated-to('week').later(:weeks($week-num));
 
 		state $sth = $!dbh.prepare(q:to/STATEMENT/);
-		SELECT SUM(ended-started) FROM working_day WHERE started >= ? AND ended <= ?
+		SELECT SUM(total) FROM v_working_day WHERE started >= ? AND ended <= ?
 		STATEMENT
 
 		given $sth {
@@ -97,7 +120,7 @@ class Persist {
 
 	method get-current-account {
 		state $sth = $!dbh.prepare(q:to/STATEMENT/);
-			SELECT SUM(ended-started) - COUNT(*) * 7.5 * 3600 FROM working_day
+			SELECT SUM(total) - COUNT(*) * 7.5 * 3600 FROM v_working_day
 		STATEMENT
 
 		$sth.execute();
@@ -134,7 +157,7 @@ class Persist {
 						timezone => $*TZ,
 					);
 
-					my $end = $start.later(:hour($/<hour>)).later(:minute($/<min>));
+					my $end = $start.later(:hour($/<hour>)).later(:minute($/<min> + 30));
 
 					self.save(Work-time.new(:$start, :$end));
 					$inserted++;

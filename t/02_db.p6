@@ -18,7 +18,7 @@ ok $db.IO ~~ :e, 'DB file exists';
 {
 	my $dt-loc = DateTime.now.truncated-to('day').truncated-to('week').later(hours => 8);
 	for (0..4) {
-		ok $persist.save(Work-time.new(start => $dt-loc, end => $dt-loc.later(:8hours).later(:minutes($_)))), 'Saving Work-time';
+		ok $persist.save(Work-time.new(start => $dt-loc, end => $dt-loc.later(:8hours).later(:minutes($_)), had-lunch => False)), 'Saving Work-time';
 		$dt-loc = $dt-loc.later(day => 1);
 	}
 }

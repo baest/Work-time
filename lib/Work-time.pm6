@@ -3,6 +3,7 @@ use v6;
 class Work-time {
 	has DateTime $.start is rw = DateTime.now;
 	has DateTime $.end is rw = DateTime.now;
+	has Bool $.had-lunch is rw = True;
 
 	method next-day {
 		$.start.truncated-to('day').later(day => 1);
@@ -48,7 +49,7 @@ class Work-time {
 	}
 
 	method get-time (){
-		return $!end.Instant - $!start.Instant;
+		return $!end.Instant - $!start.Instant - ($!had-lunch.Numeric * 30 * 60);
 	}
 
 	method get-time-pretty (){
@@ -57,6 +58,6 @@ class Work-time {
 	}
 
 	multi method Str {
-		return join("\n", (start => $!start.Str, end => $!end.Str), (diff => self.get-time-pretty));
+		return join("\n", (start => $!start.Str, end => $!end.Str, had-lunch => $!had-lunch.Numeric), (diff => self.get-time-pretty));
 	}
 }
