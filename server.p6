@@ -31,10 +31,14 @@ react {
 					));
 				}
 			}
-			unless $ret-login === $login {
+			if $ret-login === $login {
+				say "Not saving: ";
+				say ~$login;
+			}
+			else {
 				$persist.save($ret-login);
-                say "Saving: ";
-                say ~$ret-login;
+				say "Saving: ";
+				say ~$ret-login;
 			}
 
 			await $conn.print($login.Str.encode('UTF-8'));
