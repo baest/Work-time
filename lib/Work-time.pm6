@@ -17,7 +17,7 @@ class Work-time {
 		my Work-time $ret;
 		given $what {
 			when /:i start/ {
-				$ret = self.clone if self.is-next-day($dt);
+				$ret = self.clone-me if self.is-next-day($dt);
 
 				$!start = $dt;
 			}
@@ -37,7 +37,7 @@ class Work-time {
 		my Work-time $ret; 
 
 		if self.is-next-day($dt) {
-			$ret = self.clone;
+			$ret = self.clone-me;
 			$!start = $dt;
 			$!end = $dt;
 		}
@@ -59,5 +59,10 @@ class Work-time {
 
 	multi method Str {
 		return join("\n", (start => $!start.Str, end => $!end.Str, had-lunch => $!had-lunch.Numeric), (diff => self.get-time-pretty));
+	}
+
+	method clone-me {
+		my $clone = self.clone;
+		$clone.had-lunch = True;
 	}
 }
