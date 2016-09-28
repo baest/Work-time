@@ -61,8 +61,9 @@ class Work-time {
 		return join("\n", (start => $!start.Str, end => $!end.Str, had-lunch => $!had-lunch.Numeric), (diff => self.get-time-pretty));
 	}
 
-	method clone-me {
+	method clone-me returns Work-time:D {
 		my $clone = self.clone;
 		$clone.had-lunch = True;
+		return $clone;
 	}
 }
