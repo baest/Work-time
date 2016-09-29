@@ -20,6 +20,7 @@ class Work-time {
 				$ret = self.clone-me if self.is-next-day($dt);
 
 				$!start = $dt;
+				$!end = $!start if $!start > $!end;
 			}
 			when /:i end/ {
 				if $dt < $!start {
