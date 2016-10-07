@@ -64,7 +64,7 @@ class Work-time {
 
 	method clone-me returns Work-time:D {
 		my $clone = self.clone;
-		$clone.had-lunch = True;
+		$!had-lunch = True;
 		return $clone;
 	}
 }
