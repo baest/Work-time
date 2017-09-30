@@ -1,4 +1,6 @@
 - auto find last entry and reuse if same day on start
+	- should be done
+	- test
 
 - test that client work with mock server
 

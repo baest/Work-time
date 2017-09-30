@@ -12,6 +12,11 @@ class Persist {
 	submethod BUILD (:file($!file) = 'worktime.db') {
 		$!dbh = DBIish.connect("SQLite", :database($!file));
 		$!dbh.do(q:to/STATEMENT/);
+			CREATE TABLE IF NOT EXISTS version (
+				version int NOT NULL DEFAULT 1
+			)
+		STATEMENT
+		$!dbh.do(q:to/STATEMENT/);
 			CREATE TABLE IF NOT EXISTS working_day (
 				started int NOT NULL,
 				ended int NOT NULL,
@@ -51,6 +56,21 @@ class Persist {
 		$sth.execute(Int($login.start.Instant), Int($login.end.Instant), $login.had-lunch.Numeric); 
 
 		return 1;
+	}
+
+	method get-current () returns Work-time {
+		state $sth = $!dbh.prepare(q:to/STATEMENT/);
+			SELECT * FROM working_day WHERE date(started, 'unixepoch') = CURRENT_DATE
+		STATEMENT
+
+		$sth.execute();
+		my @rows = $sth.allrows;
+		return unless @rows;
+
+		my $start = DateTime.new(+@rows[0][0], :timezone($*TZ));
+		my $end = DateTime.new(+@rows[0][1], :timezone($*TZ));
+
+		return Work-time.new(:$start, :$end, :had-lunch(?@rows[0][2]));
 	}
 
 	method !sum-week ($week-num, $year) {

@@ -50,16 +50,17 @@ class Work-time {
 	}
 
 	method get-time (){
-		return $!end.Instant - $!start.Instant - ($!had-lunch.Numeric * 30 * 60);
+		return $!end.Instant - ($!start.Instant + ($!had-lunch.Numeric * 30 * 60));
 	}
 
 	method get-time-pretty (){
 		my $diff = self.get-time;
-		return sprintf '%02d:%02d', $diff / 3600, ($diff % 3600) / 60;
+		# modulus doesn't return negative so append - in case of negative time
+		return ($diff < 0 ?? '-' !! '') ~ sprintf '%02d:%02d', $diff / 3600, ($diff % 3600) / 60;
 	}
 
-	multi method Str {
-		return join("\n", (start => $!start.Str, end => $!end.Str, had-lunch => $!had-lunch.Numeric), (diff => self.get-time-pretty));
+	multi method Str () {
+		return join("\n", (start => $!start.Str , end => $!end.Str, had-lunch => $!had-lunch.Numeric), (diff => self.get-time-pretty));
 	}
 
 	method clone-me returns Work-time:D {
