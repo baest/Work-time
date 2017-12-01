@@ -1,6 +1,7 @@
 use v6;
 
 class Work-time {
+	has Int $.id is rw = 0;
 	has DateTime $.start is rw = DateTime.now;
 	has DateTime $.end is rw = DateTime.now;
 	has Bool $.had-lunch is rw = True;
@@ -50,13 +51,14 @@ class Work-time {
 	}
 
 	method get-time (){
-		return $!end.Instant - ($!start.Instant + ($!had-lunch.Numeric * 30 * 60));
+		return $!end.Instant - $!start.Instant - ($!had-lunch.Numeric * 30 * 60);
 	}
 
 	method get-time-pretty (){
 		my $diff = self.get-time;
 		# modulus doesn't return negative so append - in case of negative time
-		return ($diff < 0 ?? '-' !! '') ~ sprintf '%02d:%02d', $diff / 3600, ($diff % 3600) / 60;
+		# also modulus does weird things when negative so use absolute values
+		return ($diff < 0 ?? '-' !! '') ~ sprintf '%02d:%02d', $diff / 3600, ($diff.abs % 3600) / 60;
 	}
 
 	multi method Str () {
@@ -66,6 +68,7 @@ class Work-time {
 	method clone-me returns Work-time:D {
 		my $clone = self.clone;
 		$!had-lunch = True;
+		$!id = 0;
 		return $clone;
 	}
 }
