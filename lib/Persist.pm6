@@ -61,8 +61,6 @@ class Persist {
 		my @params = Int($login.start.Instant), Int($login.end.Instant), $login.had-lunch.Numeric;
 		@params.push($login.id) if $login.id;
 
-		warn join(" - ", @params);
-
 		$sth.execute(|@params);
 
 		return 1;

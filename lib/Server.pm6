@@ -17,7 +17,6 @@ class Server {
 
 	method start {
 		$!login = $!persist.get-current // Work-time.new;
-		warn ~$!login;
 
 		my $application = route {
 			get -> 'checkin' {
@@ -59,19 +58,13 @@ class Server {
 	}
 
 	method handle_update {
-		#if $!ret-login && $!ret-login !== $!login {
-		#	$!persist.save($!ret-login);
-		#	say 'Saving last entry';
-		#}
 		$!persist.save($!login);
 		say ~$!login;
 		say ~$!ret-login;
 	}
 
 	method set-to-now {
-		my $dt = DateTime.now(:timezone($*TZ));
-		say ~$dt;
-		$!ret-login = $!login.set($dt);
+		$!ret-login = $!login.set();
 		self.output(~$!login);
 	}
 
