@@ -5,9 +5,12 @@ curl http://localhost:10000/start/1035
 curl http://localhost:10000/end/1035
 
 curl http://localhost:10000/checkin
-                            login
-                            logout
-                            no-lunch
+
+curl http://localhost:10000/login
+
+curl http://localhost:10000/logout
+
+curl http://localhost:10000/no-lunch
 
 curl http://localhost:10000/load --data-binary @data/timer.csv -H 'Content-type:text/plain; charset=utf-8' 
 
