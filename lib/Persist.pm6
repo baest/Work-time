@@ -58,6 +58,7 @@ class Persist {
 		STATEMENT
 
 		my $sth = ($login.id) ?? $upd_sth !! $ins_sth;
+        warn $login.id;
 		my @params = Int($login.start.Instant), Int($login.end.Instant), $login.had-lunch.Numeric;
 		@params.push($login.id) if $login.id;
 
@@ -160,13 +161,17 @@ class Persist {
 		$!dbh.do('DELETE FROM working_day');
 	}
 
-	method load-data (Str $filename where { .IO.r || die "Couldn't load file $filename" }) {
+	method load-file (Str $filename where { .IO.r || die "Couldn't load file $filename" }) {
+        self.load-file($filename.IO);
+    }
+
+	method load-data (Str $file) {
 		my $year = 2014;
 		my $last_month = 5;
 		my $inserted = 0;
 
-		for $filename.IO.lines -> $line {
-			given $line { 
+		for $file.lines -> $line {
+			given $line {
 				next if /^^ ','+ \s* $$/;
 				next if / 'Total' | 'Fridage' | 'Sygedage' /;
 

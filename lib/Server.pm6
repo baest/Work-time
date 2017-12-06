@@ -43,6 +43,11 @@ class Server {
 				self.set-to-time('end', $time);
 				self.handle_update;
 			}
+			post -> 'load' {
+                request-body-text -> $file {
+                    $!persist.load-data($file);
+                }
+			}
 		}
 
 		say 'Ready';
