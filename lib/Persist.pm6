@@ -56,13 +56,20 @@ class Persist {
 		state $upd_sth = $!dbh.prepare(q:to/STATEMENT/);
 			UPDATE working_day SET started = ?, ended = ?, had_lunch = ? WHERE rowid = ?
 		STATEMENT
+		state $get_id_std = $!dbh.prepare(q:to/STATEMENT/);
+			SELECT last_insert_rowid();
+		STATEMENT
 
 		my $sth = ($login.id) ?? $upd_sth !! $ins_sth;
-        warn $login.id;
 		my @params = Int($login.start.Instant), Int($login.end.Instant), $login.had-lunch.Numeric;
 		@params.push($login.id) if $login.id;
 
 		$sth.execute(|@params);
+
+		unless $login.id {
+			$get_id_std.execute();
+			$login.id = $get_id_std.row()[0];
+		}
 
 		return 1;
 	}
