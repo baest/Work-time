@@ -44,9 +44,9 @@ class Server {
 				self.handle_update;
 			}
 			post -> 'load' {
-                request-body-text -> $file {
-                    $!persist.load-data($file);
-                }
+				request-body-text -> $file {
+					$!persist.load-data($file);
+				}
 			}
 		}
 
