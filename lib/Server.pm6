@@ -65,7 +65,11 @@ class Server {
 	method handle_update {
 		$!persist.save($!login);
 		say ~$!login;
-		say ~$!ret-login;
+
+        if (~$!login ne ~$!ret-login) {
+            say 'Saved yesterday';
+            say ~$!ret-login;
+        }
 	}
 
 	method set-to-now {
