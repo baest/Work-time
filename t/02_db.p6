@@ -5,8 +5,6 @@ use Work-time;
 
 use Persist;
 
-plan 48;
-
 my $db = 'test.db';
 
 $db.IO.unlink;
@@ -28,7 +26,7 @@ is $persist.account-week, '2:40', 'Get overtime hours per week';
 
 $persist.clear-data;
 
-$persist.load-data("data/timer.csv");
+is 804, $persist.load-file("data/timer.csv"), 'Saved correct number of days';
 
 is $persist.sum-week(:week-num(34), :2016year), '39:20', 'Get numbers of hours worked per week for week 34 2016';
 is $persist.account-week(:week-num(34), :2016year), '1:50', 'Get overtime hours for week 34';
@@ -44,7 +42,7 @@ for 1..33 {
 	is $total, @week_totalts[$_], "The total is correct for week $_";
 }
 
-is $persist.get-current-account, '22:15', 'Current flex is correct';
+is $persist.get-current-account, '34:10', 'Current flex is correct';
 
 if %*ENV<NO_UNLINK> {
 	skip "Not removing file since NO_UNLINK", 1;
@@ -52,3 +50,5 @@ if %*ENV<NO_UNLINK> {
 else {
 	ok $db.IO.unlink, 'Remove file';
 }
+
+done-testing;
