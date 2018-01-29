@@ -14,12 +14,9 @@ class Work-time {
 		return $dt.truncated-to('day') >= self.next-day;
 	}
 
-	multi method set (Str $what, DateTime $dt) returns Work-time:D {
-		my Work-time $ret;
+	multi method set (Str $what, DateTime $dt) {
 		given $what {
 			when /:i start/ {
-				$ret = self.clone-me if self.is-next-day($dt);
-
 				$!start = $dt;
 				$!end = $!start if $!start > $!end;
 			}
@@ -31,23 +28,16 @@ class Work-time {
 				$!end = $dt;
 			}
 		}
-
-		return $ret // self;
 	}
 
-	multi method set(DateTime $dt = DateTime.now()) returns Work-time:D {
-		my Work-time $ret; 
-
+	multi method set(DateTime $dt = DateTime.now()) {
 		if self.is-next-day($dt) {
-			$ret = self.clone-me;
 			$!start = $dt;
 			$!end = $dt;
 		}
 		elsif $dt > $!end {
 			$!end = $dt;
 		}
-
-		return $ret // self;
 	}
 
 	method get-time (){

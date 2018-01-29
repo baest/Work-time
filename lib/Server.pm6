@@ -11,7 +11,6 @@ my subset time of Str where /^ <time-match>  $/;
 
 class Server {
 	has Work-time $.login is rw;
-	has Work-time $.ret-login is rw;
 	has Persist $.persist is rw = Persist.new();
 	has Bool $.verbose;
 
@@ -65,21 +64,16 @@ class Server {
 	method handle_update {
 		$!persist.save($!login);
 		say ~$!login;
-
-        if (~$!login ne ~$!ret-login) {
-            say 'Saved yesterday';
-            say ~$!ret-login;
-        }
 	}
 
 	method set-to-now {
-		$!ret-login = $!login.set();
+		$!login.set();
 		self.output(~$!login);
 	}
 
 	method set-to-time (Str $what, time $time) {
 		$time ~~ / <time-match> /;
-		$!ret-login = $!login.set($what, DateTime.new(
+		$!login.set($what, DateTime.new(
 			date => Date.today,
 			hour => $<time-match><hour>,
 			minute => $<time-match><minute>,
