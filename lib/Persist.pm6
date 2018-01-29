@@ -95,11 +95,15 @@ class Persist {
 		my $dt = DateTime.new(
 			:$year,
 			:1month
-			:i1day,
+			:1day,
 			:8hour,
 			:0minute,
 			timezone => $*TZ,
-		).truncated-to('week').later(:weeks($week-num));
+		).truncated-to('week');
+		
+		# is 1/1 the last week of last year or week 1
+		$dt = $dt.later(:weeks($week-num - 
+			($dt.week-year == $year ?? 1 !! 0)));
 
 		state $sth = $!dbh.prepare(q:to/STATEMENT/);
 		SELECT SUM(total) FROM v_working_day WHERE started >= ? AND ended <= ?
@@ -169,7 +173,7 @@ class Persist {
 	}
 
 	method load-file (Str $filename where { .IO.r || die "Couldn't load file $filename" }) {
-        self.load-file($filename.IO);
+        self.load-data($filename.IO.slurp);
     }
 
 	method load-data (Str $file) {
