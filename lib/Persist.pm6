@@ -89,21 +89,9 @@ class Persist {
 		return Work-time.new(:id(@rows[0][0]), :$start, :$end, :had-lunch(?@rows[0][3]));
 	}
 
-	method !sum-week ($week-num, $year) {
-		#my $dt = DateTime.now.truncated-to('week');
-
-		my $dt = DateTime.new(
-			:$year,
-			:1month
-			:1day,
-			:8hour,
-			:0minute,
-			timezone => $*TZ,
-		).truncated-to('week');
-		
-		# is 1/1 the last week of last year or week 1
-		$dt = $dt.later(:weeks($week-num - 
-			($dt.week-year == $year ?? 1 !! 0)));
+	method !sum-week (:$dt is copy) {
+		$dt //= DateTime.now;
+		$dt .= truncated-to('week');
 
 		state $sth = $!dbh.prepare(q:to/STATEMENT/);
 		SELECT SUM(total) FROM v_working_day WHERE started >= ? AND ended <= ?
@@ -111,21 +99,29 @@ class Persist {
 
 		given $sth {
 			.execute($dt.Instant, $dt.later(:1week).earlier(:1minute).Instant);
-			return .allrows[0][0];
+			my $rows = .allrows;
+			die "No data for $dt" unless defined $rows[0][0];
+			return $rows[0][0];
 		}
 	}
 
-	method sum-week (:$week-num = Date.today.week-number, :$year = Date.today.year) {
-		my ($sum) = self!sum-week($week-num, $year);
+	method sum-week (:$dt) {
+		my ($sum) = self!sum-week(:$dt);
+
+		#TODO cast exception here instead
+		return 0 unless defined $sum;
 
 		return self.get-time($sum);
 	}
 
-	method account-week (:$week-num = Date.today.week-number, :$year = Date.today.year) {
-		my ($sum) = self!sum-week($week-num, $year);
+	method account-week-raw (:$dt) {
+		my ($sum) = self!sum-week(:$dt);
 		$sum -= (37 * 60 + 30) * 60;
+		return $sum;
+	}
 
-		return self.get-time($sum);
+	method account-week (:$dt) {
+		return self.get-time(self.account-week-raw(:$dt));
 	}
 
 	method get-time ($secs) {
@@ -180,11 +176,22 @@ class Persist {
 		my $year = 2014;
 		my $last_month = 5;
 		my $inserted = 0;
+		my ($start, $end);
 
 		for $file.lines -> $line {
 			given $line {
 				next if /^^ ','+ \s* $$/;
-				next if / 'Total' | 'Fridage' | 'Sygedage' /;
+				next if / 'Flex' | 'Fridage' | 'Sygedage' /;
+
+				# ,Total,38:35:00,1:05:00
+				if /',Total,' $<hour>=\d+ ':' $<minute>=\d+ ':' \d+/ {
+					my $sum = self.sum-week(:dt($start));
+					my $sum_from_csv = "{$/<hour>}:{$/<minute>}";
+					if $sum ne $sum_from_csv {
+						die "$sum doesn't match $sum_from_csv from $line";
+					}
+					next;
+				}
 
 				if /$<week_num>=\d* ',' $<day>=\d+ \s+ $<mon>=\w+ ',' $<hour>=\d+ ":" $<min>=\d+ ','/ {
 					my $month = DateTime::Parse.new(~$/<mon>, :rule<month>);
@@ -192,20 +199,22 @@ class Persist {
 					$year++ if $month < $last_month;
 					$last_month = $month;
 
-					my $start = DateTime.new(
+					$start = DateTime.new(
 						:$year,
 						:$month
 						:day(~$/<day>),
-						:8hour,
+						:6hour,
 						:0minute,
 						timezone => $*TZ,
 					);
 
-					my $end = $start.later(:hour($/<hour>)).later(:minute($/<min> + 30));
+					$end = $start.later(:hour($/<hour>)).later(:minute($/<min> + 30));
 
 					self.save(Work-time.new(:$start, :$end));
 					$inserted++;
+					next;
 				}
+				die $line;
 			}
 		}
 		return $inserted;
