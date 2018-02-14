@@ -26,6 +26,27 @@ is $persist.account-week, '2:40', 'Get overtime hours per week';
 
 $persist.clear-data;
 
+# make sure a next day gets a new id
+my $dt-start = DateTime.new(
+	:2018year,
+	:1month
+	:2day,
+	:0hour,
+	:1minute,
+	timezone => $*TZ,
+);
+my $wt = Work-time.new(start => $dt-start, had-lunch => True);
+$wt.set('end', $dt-start.later(minute => 20));
+$persist.save($wt);
+
+$wt.set($dt-start.later(day => 1));
+is $persist.sum-week(dt => $dt-start), '-0:10', 'Get really short week after only lunch';
+$wt.set($dt-start.later(day => 1).later(hour => 1));
+$persist.save($wt);
+is $persist.sum-week(dt => $dt-start), '0:20', 'Get really short week and also make sure that we do not override first work time';
+
+$persist.clear-data;
+
 is 805, $persist.load-file("data/timer.csv"), 'Saved correct number of days';
 
 # 22/8/16 -> week 34

@@ -32,6 +32,7 @@ class Work-time {
 
 	multi method set(DateTime $dt = DateTime.now()) {
 		if self.is-next-day($dt) {
+			self.reset();
 			$!start = $dt;
 			$!end = $dt;
 		}
@@ -57,8 +58,12 @@ class Work-time {
 
 	method clone-me returns Work-time:D {
 		my $clone = self.clone;
-		$!had-lunch = True;
-		$!id = 0;
+		$clone.reset();
 		return $clone;
 	}
+
+    method reset {
+		$!had-lunch = True;
+		$!id = 0;
+    }
 }
