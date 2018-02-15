@@ -17,6 +17,9 @@ class Work-time {
 	multi method set (Str $what, DateTime $dt) {
 		given $what {
 			when /:i start/ {
+                if self.is-next-day($dt) {
+                    self.reset();
+                }
 				$!start = $dt;
 				$!end = $!start if $!start > $!end;
 			}
