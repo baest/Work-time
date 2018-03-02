@@ -46,6 +46,21 @@ $persist.save($wt);
 is $persist.sum-week(dt => $dt-start), '0:20', 'Get really short week and also make sure that we do not override first work time';
 
 $persist.clear-data;
+{
+	my $dt = DateTime.now.truncated-to('week').later(hours => 8);
+	my $login = Work-time.new(start => $dt, end => $dt, :!had-lunch);
+	for 0..8 {
+		$login.set($dt.later(hours => $_));
+		$persist.save($login);
+	}	
+	$login.set($dt.later(day => 1));
+	$login.had-lunch = False;
+	$persist.save($login);
+
+	is $persist.sum-week, '8:00', 'Get numbers of hours worked per week';
+}
+
+$persist.clear-data;
 
 is 805, $persist.load-file("data/timer.csv"), 'Saved correct number of days';
 

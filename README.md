@@ -16,8 +16,6 @@ curl http://localhost:10000/load --data-binary @data/timer.csv -H 'Content-type:
 
 ## TODO
 
-- fix total in t/02.p6
-
 - auto find last entry and reuse if same day on start
 	- test
 
