@@ -16,8 +16,7 @@ curl http://localhost:10000/load --data-binary @data/timer.csv -H 'Content-type:
 
 ## TODO
 
-- auto find last entry and reuse if same day on start
-	- test
+- full set support so an earlier saved day can be updated
 
 - test that client work with mock server
 
