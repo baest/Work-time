@@ -52,7 +52,8 @@ class Work-time {
 		my $diff = self.get-time;
 		# modulus doesn't return negative so append - in case of negative time
 		# also modulus does weird things when negative so use absolute values
-		return ($diff < 0 ?? '-' !! '') ~ sprintf '%02d:%02d', $diff / 3600, ($diff.abs % 3600) / 60;
+		my @polymod = $diff.abs.polymod: 60, 60;
+		return ($diff < 0 ?? '-' !! '') ~ sprintf('%02d:%02d', @polymod[2,1]);
 	}
 
 	multi method Str () {
