@@ -52,7 +52,7 @@ $persist.clear-data;
 	for 0..8 {
 		$login.set($dt.later(hours => $_));
 		$persist.save($login);
-	}	
+	}
 	$login.set($dt.later(day => 1));
 	$login.had-lunch = False;
 	$persist.save($login);
@@ -62,7 +62,7 @@ $persist.clear-data;
 
 $persist.clear-data;
 
-is 805, $persist.load-file("data/timer.csv"), 'Saved correct number of days';
+is 895, $persist.load-file("data/timer.csv"), 'Saved correct number of days';
 
 # 22/8/16 -> week 34
 my $dt = DateTime.new(
@@ -108,7 +108,7 @@ $dt = DateTime.new(
 	timezone => $*TZ,
 );
 
-is $persist.get-current-account, '34:10', 'Current flex is correct';
+is $persist.get-current-account, '14:50', 'Current flex is correct';
 
 if %*ENV<NO_UNLINK> {
 	skip "Not removing file since NO_UNLINK", 1;
