@@ -80,7 +80,19 @@ class Persist {
 		STATEMENT
 
 		$sth.execute();
-		my @rows = $sth.allrows;
+		return self!get-worktime-from-row($sth.allrows);
+	}
+
+	method get(:$dt is copy) returns Work-time {
+		state $sth = $!dbh.prepare(q:to/STATEMENT/);
+			SELECT rowid, * FROM working_day WHERE date(started, 'unixepoch') = ?
+		STATEMENT
+
+		$sth.execute($dt.Date.Str);
+		return self!get-worktime-from-row($sth.allrows);
+	}
+
+	method !get-worktime-from-row(@rows) returns Work-time {
 		return unless @rows;
 
 		my $start = DateTime.new(+@rows[0][1], :timezone($*TZ));

@@ -17,9 +17,9 @@ class Work-time {
 	multi method set (Str $what, DateTime $dt) {
 		given $what {
 			when /:i start/ {
-                if self.is-next-day($dt) {
-                    self.reset();
-                }
+				if self.is-next-day($dt) {
+					self.reset();
+				}
 				$!start = $dt;
 				$!end = $!start if $!start > $!end;
 			}
@@ -66,8 +66,8 @@ class Work-time {
 		return $clone;
 	}
 
-    method reset {
+	method reset {
 		$!had-lunch = True;
 		$!id = 0;
-    }
+	}
 }

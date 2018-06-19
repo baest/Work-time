@@ -8,16 +8,31 @@ use Cro::HTTP::Server;
 
 my regex time-match { $<hour> = \d**1..2 ':'? $<minute> = \d**2 }
 my subset time of Str where /^ <time-match>  $/;
+my regex date-match { [ $<month> = \d**2 $<day> = \d**2 |  $<year> = [ \d**2 | \d**4 ] $<month> = \d**2 $<day> = \d**2 ] }
+my regex from-to-time-match { ^ $<from-time> = \d**1..4 '-' $<to-time> = \d**1..4 $ }
+
+my subset set-date of Str where /^ $<mydate> = [ \d**4  | \d**6 | \d**8 ] $/;
+my subset set-time of Str where / <from-to-time-match> /;
 
 class Server {
-	has Work-time $.login is rw;
+	has Work-time $.work-time is rw;
 	has Persist $.persist is rw = Persist.new();
 	has Bool $.verbose;
 
 	method start {
-		$!login = $!persist.get-current // Work-time.new;
+		$!work-time = $!persist.get-current // Work-time.new;
 
-		my $application = route {
+		my $application = self.routes();
+
+		say 'Ready';
+		$!persist.save($!work-time);
+		my Cro::Service $service = Cro::HTTP::Server.new: :host<localhost>, :port<10000>, :$application;
+		$service.start;
+		react whenever signal(SIGINT) { $service.stop; exit; }
+	}
+
+	method routes() is export {
+		route {
 			get -> 'checkin' {
 				self.set-to-now;
 				self.handle_update;
@@ -31,7 +46,7 @@ class Server {
 				self.handle_update;
 			}
 			get -> 'no-lunch' {
-				$!login.had-lunch = False;
+				$!work-time.had-lunch = False;
 				self.handle_update;
 			}
 			get -> 'start', time $time is rw {
@@ -42,18 +57,43 @@ class Server {
 				self.set-to-time('end', $time);
 				self.handle_update;
 			}
+			get -> 'set', set-date $set-date is rw, set-time $set-detail is rw {
+				my $old-work-time = $!work-time;
+				my $dt = DateTime.now();
+
+				$set-date ~~ / <date-match> /;
+				my $year = $<date-match><year> // $dt.year;
+				$year += 2000 if $year < 2000;
+				my $month = $<date-match><month> // $dt.month;
+				my $day = $<date-match><day> // $dt.day;
+
+				$dt = DateTime.new(
+					:$year,
+					:$month,
+					:$day,
+					timezone => $*TZ,
+				);
+				#TODO handle lunch, how?
+				my $wt = $!persist.get(:$dt) // Work-time.new;
+				$set-detail ~~ / <from-to-time-match> /;
+				$wt.set('start', $dt.later(hours => $<from-to-time-match><from-time>));
+				$wt.set('end', $dt.later(hours => $<from-to-time-match><to-time>));
+				#self.handle_update;
+				$!persist.save($wt);
+				say ~$wt;
+				self.output(~$wt);
+			}
+			get -> 'set', set-time $set_detail is rw {
+				warn $set_detail;
+				#self.set-to-time('end', $time);
+				#self.handle_update;
+			}
 			post -> 'load' {
 				request-body-text -> $file {
 					$!persist.load-data($file);
 				}
 			}
 		}
-
-		say 'Ready';
-		$!persist.save($!login);
-		my Cro::Service $service = Cro::HTTP::Server.new: :host<localhost>, :port<10000>, :$application;
-		$service.start;
-		react whenever signal(SIGINT) { $service.stop; exit; }
 	}
 
 	method output (Str $what) {
@@ -62,23 +102,23 @@ class Server {
 	}
 
 	method handle_update {
-		$!persist.save($!login);
-		say ~$!login;
+		$!persist.save($!work-time);
+		say ~$!work-time;
 	}
 
 	method set-to-now {
-		$!login.set();
-		self.output(~$!login);
+		$!work-time.set();
+		self.output(~$!work-time);
 	}
 
 	method set-to-time (Str $what, time $time) {
 		$time ~~ / <time-match> /;
-		$!login.set($what, DateTime.new(
+		$!work-time.set($what, DateTime.new(
 			date => Date.today,
 			hour => $<time-match><hour>,
 			minute => $<time-match><minute>,
 			timezone => $*TZ,
 		));
-		self.output(~$!login);
+		self.output(~$!work-time);
 	}
 }
