@@ -20,15 +20,12 @@ curl http://localhost:10000/load --data-binary @data/timer.csv -H 'Content-type:
 
 ## TODO
 
-V? full set support so an earlier saved day can be updated
-	# TODO how lunch
-	# TODO test this feature
+- how to set lunch on /set/\*
 	
-
-- test that client work with mock server
-
-- test that server works with mock client
+- test all urls works
 
 - provide stat automatically. Like current status every week/month
+	- test
 
 - provide stat get functionality
+	- test
