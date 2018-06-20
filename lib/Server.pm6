@@ -9,7 +9,7 @@ use Cro::HTTP::Server;
 my regex time-match { $<hour> = \d**1..2 ':'? $<minute> = \d**2 }
 my subset time of Str where /^ <time-match>  $/;
 my regex date-match { [ $<month> = \d**2 $<day> = \d**2 |  $<year> = [ \d**2 | \d**4 ] $<month> = \d**2 $<day> = \d**2 ] }
-my regex from-to-time-match { ^ $<from-time> = \d**1..4 '-' $<to-time> = \d**1..4 $ }
+my regex from-to-time-match { ^ $<from-hour> = \d**1..2 [ $<from-min> = \d**1..2 ]? '-' $<to-hour> = \d**1..2 [ $<to-min> = \d**1..2 ]? $ }
 
 my subset set-date of Str where /^ $<mydate> = [ \d**4  | \d**6 | \d**8 ] $/;
 my subset set-time of Str where / <from-to-time-match> /;
@@ -73,20 +73,10 @@ class Server {
 					:$day,
 					timezone => $*TZ,
 				);
-				#TODO handle lunch, how?
-				my $wt = $!persist.get(:$dt) // Work-time.new;
-				$set-detail ~~ / <from-to-time-match> /;
-				$wt.set('start', $dt.later(hours => $<from-to-time-match><from-time>));
-				$wt.set('end', $dt.later(hours => $<from-to-time-match><to-time>));
-				#self.handle_update;
-				$!persist.save($wt);
-				say ~$wt;
-				self.output(~$wt);
+				self.set($dt, $set-detail);
 			}
-			get -> 'set', set-time $set_detail is rw {
-				warn $set_detail;
-				#self.set-to-time('end', $time);
-				#self.handle_update;
+			get -> 'set', set-time $set-detail is rw {
+				self.set(DateTime.now().truncated-to('day'), $set-detail);
 			}
 			post -> 'load' {
 				request-body-text -> $file {
@@ -120,5 +110,17 @@ class Server {
 			timezone => $*TZ,
 		));
 		self.output(~$!work-time);
+	}
+
+	method set ($dt, $set-detail) {
+		#TODO handle lunch, how?
+		my $wt = $!persist.get(:$dt) // Work-time.new;
+		$set-detail ~~ / <from-to-time-match> /;
+
+		$wt.set('start', $dt.later(hours => $<from-to-time-match><from-hour>).later(minutes => $<from-to-time-match><from-min> // 0));
+		$wt.set('end', $dt.later(hours => $<from-to-time-match><to-hour>).later(minutes => $<from-to-time-match><to-min> // 0));
+		$!persist.save($wt);
+		say ~$wt;
+		self.output(~$wt);
 	}
 }

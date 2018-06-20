@@ -6,7 +6,7 @@ use DateTime::Parse;
 
 class Persist {
 	#has $.file where { .IO.w // die "file not found in $*CWD" } = 'worktime.db';
-	has $.file;# = 'worktime.db';
+	has $.file;
 	has $.dbh;
 
 	submethod BUILD (:file($!file) = 'worktime.db') {
