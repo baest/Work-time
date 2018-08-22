@@ -11,13 +11,10 @@ class Work-time {
 	}
 
 	method is-next-day (DateTime $dt) {
-        warn $dt.truncated-to('day');
-        warn self.next-day;
 		return $dt.truncated-to('day') >= self.next-day;
 	}
 
 	multi method set (Str $what, DateTime $dt) {
-        warn $dt;
 		given $what {
 			when /:i start/ {
 				if self.is-next-day($dt) {
@@ -47,8 +44,8 @@ class Work-time {
 		}
 	}
 
-    multi method set(:$from-hour, :$from-min, :$to-hour, :$to-min) {
-        my $dt = DateTime.new(date => $!start.Date, hour => $from-hour, minute => $from-min, timezone => $!end.timezone);
+    multi method set-from-to(:$from-hour, :$from-min, :$to-hour, :$to-min) {
+        my $dt = DateTime.new(date => $!start.Date, hour => $from-hour, minute => $from-min, timezone => $!start.timezone);
         $!start = $dt;
 
         $dt = DateTime.new(date => $!end.Date, hour => $to-hour, minute => $to-min, timezone => $!end.timezone);

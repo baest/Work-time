@@ -81,7 +81,7 @@ class Server {
 			}
 			get -> 'set', pick-entry $pick is rw, set-time $set-detail is rw {
                 # later since we get a negative number
-                self.set(DateTime.now().truncated-to('day').later(days => $pick), $set-detail);
+                self.set(DateTime.now().truncated-to('day').later(days => $pick), $set-detail, fail-if-not-found => True);
 			}
 			get -> 'set', pick-entry $pick is rw, 'no-lunch' {
                 # later since we get a negative number
@@ -133,22 +133,28 @@ class Server {
 		self.output(~$wt, :is-verbose(True));
     }
 
-	method set ($dt, $set-detail) {
-		#TODO handle lunch, how?
+	method set ($dt, $set-detail, :$fail-if-not-found = False) {
 		my $wt = $!persist.get(:$dt);
-        unless $wt {
+        if ($fail-if-not-found && !$wt) {
             self.output("Record with {$dt.Date.Str} not found", :is-verbose(True));
             return;
         }
+        else {
+            say 'in here';
+            $wt //= Work-time.new(start => $dt, end => $dt);
+        }
+
+        say $dt.Date.Str;
+        say ~$wt;
 
 		$set-detail ~~ / <from-to-time-match> /;
 
         my $from-hour = $<from-to-time-match><from-hour>;
-        my $from-min = $<from-to-time-match><from-min>;
+        my $from-min = $<from-to-time-match><from-min> // 0;
         my $to-hour = $<from-to-time-match><to-hour>;
-        my $to-min = $<from-to-time-match><to-min>;
+        my $to-min = $<from-to-time-match><to-min> // 0;
 
-		$wt.set(:$from-hour, :$from-min, :$to-hour, :$to-min);
+		$wt.set-from-to(:$from-hour, :$from-min, :$to-hour, :$to-min);
 
 		$!persist.save($wt);
 		self.output(~$wt, :is-verbose(True));

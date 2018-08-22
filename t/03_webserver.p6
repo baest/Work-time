@@ -23,6 +23,7 @@ my $s = Server.new(:$persist);
 #curl http://localhost:10000/logout
 #curl http://localhost:10000/no-lunch
 #curl http://localhost:10000/load --data-binary @data/timer.csv -H 'Content-type:text/plain; charset=utf-8' 
+#curl http://localhost:10000/-1/...
 
 test-service $s.routes(), {
 	test get('/set/20180101/9-18'),
