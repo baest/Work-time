@@ -16,11 +16,15 @@ curl http://localhost:10000/set/0900-1800
 curl http://localhost:10000/set/9-18
 curl http://localhost:10000/set/20180101/9-18
 
+curl http://localhost:10000/set/-1/0900-1800
+curl http://localhost:10000/set/-1/no-lunch
+
 curl http://localhost:10000/load --data-binary @data/timer.csv -H 'Content-type:text/plain; charset=utf-8' 
 
 ## TODO
 
-- how to set lunch on /set/\*
+- how to set lunch on /set/\* 
+    - FIXED?
 	
 - test all urls works
 

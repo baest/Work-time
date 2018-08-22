@@ -11,10 +11,13 @@ class Work-time {
 	}
 
 	method is-next-day (DateTime $dt) {
+        warn $dt.truncated-to('day');
+        warn self.next-day;
 		return $dt.truncated-to('day') >= self.next-day;
 	}
 
 	multi method set (Str $what, DateTime $dt) {
+        warn $dt;
 		given $what {
 			when /:i start/ {
 				if self.is-next-day($dt) {
@@ -25,7 +28,7 @@ class Work-time {
 			}
 			when /:i end/ {
 				if $dt < $!start {
-					say "Ignoring { $dt } since it's before { self.start }";
+					say "Ignoring { $dt } since it's before start { ~self }";
 					return;
 				}
 				$!end = $dt;
@@ -43,6 +46,14 @@ class Work-time {
 			$!end = $dt;
 		}
 	}
+
+    multi method set(:$from-hour, :$from-min, :$to-hour, :$to-min) {
+        my $dt = DateTime.new(date => $!start.Date, hour => $from-hour, minute => $from-min, timezone => $!end.timezone);
+        $!start = $dt;
+
+        $dt = DateTime.new(date => $!end.Date, hour => $to-hour, minute => $to-min, timezone => $!end.timezone);
+        $!end = $dt;
+    }
 
 	method get-time (){
 		return $!end.Instant - $!start.Instant - ($!had-lunch.Numeric * 30 * 60);
