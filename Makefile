@@ -8,4 +8,5 @@ depends:
 	zef install DateTime::Parse
 	zef install DBIish
 	zef install --/test cro
+	zef install Cro::HTTP::Test
 
