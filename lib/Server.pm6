@@ -65,13 +65,11 @@ class Server {
 				$set-date ~~ / <date-match> /;
 				my $year = $<date-match><year> // $dt.year;
 				$year += 2000 if $year < 2000;
-				my $month = $<date-match><month> // $dt.month;
-				my $day = $<date-match><day> // $dt.day;
 
 				$dt = DateTime.new(
 					:$year,
-					:$month,
-					:$day,
+					:month($<date-match><month> // $dt.month),
+					:day($<date-match><day> // $dt.day),
 					timezone => $*TZ,
 				);
 				self.set($dt, $set-detail);
