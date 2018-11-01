@@ -23,6 +23,12 @@ curl http://localhost:10000/load --data-binary @data/timer.csv -H 'Content-type:
 
 ## TODO
 
+# http://localhost:10000/end/-1/1710 is buggy if the date has changed (set the
+time to 1710 on today, not yesterday)
+
+# /-1/ can't create records, like
+curl http://localhost:10000/set/-1/0900-1800
+
 - how to set lunch on /set/\* 
     - FIXED?
 	
