@@ -11,6 +11,7 @@ my subset time of Str where /^ <time-match>  $/;
 my regex date-match { [ $<month> = \d**2 $<day> = \d**2 |  $<year> = [ \d**2 | \d**4 ] $<month> = \d**2 $<day> = \d**2 ] }
 my regex from-to-time-match { ^ $<from-hour> = \d**1..2 [ $<from-min> = \d**2 ]? '-' $<to-hour> = \d**1..2 [ $<to-min> = \d**2 ]? $ }
 
+my subset start-end of Str where /^ 'start' | 'end' $/;
 my subset set-date of Str where /^ $<mydate> = [ \d**4  | \d**6 | \d**8 ] $/;
 my subset set-time of Str where / <from-to-time-match> /;
 my subset pick-entry of Str where / \- \d+ /;
@@ -81,6 +82,18 @@ class Server {
                 # later since we get a negative number
                 self.set(DateTime.now().truncated-to('day').later(days => $pick), $set-detail, fail-if-not-found => True);
 			}
+			get -> start-end $start-end is rw, pick-entry $pick is rw, time $time is rw {
+                my $dt = DateTime.now().truncated-to('day').later(days => $pick);
+                my $wt = $!persist.get(:$dt);
+
+                unless $wt {
+                    self.output("Record with {$dt.Date.Str} not found", :is-verbose(True));
+                    return;
+                }
+
+				self.set-to-time($start-end, $time, $wt);
+				self.handle_update($wt);
+			}
 			get -> 'set', pick-entry $pick is rw, 'no-lunch' {
                 # later since we get a negative number
                 self.set-no-lunch(DateTime.now().truncated-to('day').later(days => $pick));
@@ -98,9 +111,9 @@ class Server {
 		content 'text/plain', $what;
 	}
 
-	method handle_update {
-		$!persist.save($!work-time);
-		say ~$!work-time;
+	method handle_update ($wt = $!work-time) {
+		$!persist.save($wt);
+		say ~$wt;
 	}
 
 	method set-to-now {
@@ -108,15 +121,14 @@ class Server {
 		self.output(~$!work-time);
 	}
 
-	method set-to-time (Str $what, time $time) {
+	method set-to-time (Str $what, time $time, $wt = $!work-time) {
 		$time ~~ / <time-match> /;
-		$!work-time.set($what, DateTime.new(
+		$wt.set($what, DateTime.new(
 			date => Date.today,
 			hour => $<time-match><hour>,
 			minute => $<time-match><minute>,
 			timezone => $*TZ,
 		));
-		self.output(~$!work-time);
 	}
 
     method set-no-lunch($dt) {
@@ -138,12 +150,8 @@ class Server {
             return;
         }
         else {
-            say 'in here';
             $wt //= Work-time.new(start => $dt, end => $dt);
         }
-
-        say $dt.Date.Str;
-        say ~$wt;
 
 		$set-detail ~~ / <from-to-time-match> /;
 
