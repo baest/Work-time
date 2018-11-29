@@ -10,3 +10,5 @@ depends:
 	zef install --/test cro
 	zef install Cro::HTTP::Test
 
+optional:
+	zef install Desktop::Notify

@@ -10,7 +10,7 @@ class Work-time {
 		$.start.truncated-to('day').later(day => 1);
 	}
 
-	method is-next-day (DateTime $dt) {
+	method is-next-day (DateTime $dt = DateTime.now()) {
 		return $dt.truncated-to('day') >= self.next-day;
 	}
 

@@ -117,6 +117,10 @@ class Server {
 	}
 
 	method set-to-now {
+        if ($!work-time.is-next-day()) {
+            # output old time
+            self.notify(~$!work-time);
+        }
 		$!work-time.set();
 		self.output(~$!work-time);
 	}
@@ -165,4 +169,22 @@ class Server {
 		$!persist.save($wt);
 		self.output(~$wt, :is-verbose(True));
 	}
+
+    method notify ($text) {
+        state $notify;
+        my $expire_never = 0;
+        unless ($notify) {
+            my $class = 'Desktop::Notify';
+            try require ::($class);
+            unless ::($class) ~~ Failure {
+                $notify = ::($class).new(app-name => 'irssi');
+            }
+        }
+
+        my $n = $notify.new-notification('Work time for yesterday:', $text, 'stop');
+
+        $notify.set-timeout($n, $expire_never);
+
+        $notify.show($n);
+    }
 }
